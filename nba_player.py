@@ -1,20 +1,20 @@
 import pandas as pd
-pd.options.display.max_columns = None
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from matplotlib import cm, animation
 from matplotlib.patches import Circle, Rectangle, Arc
 import matplotlib.patches as mpatches
+from matplotlib.collections import PatchCollection
 import datetime
 import html5lib
 from nba_api.stats.static import players, teams
 from nba_api.stats.endpoints import commonplayerinfo, playergamelog, playercareerstats, shotchartdetail, shotchartlineupdetail
-from nba_season import NBA_Season
-from nba_methods import *
+from nba_season import NBASeason
+from nba_methods import make_shot_dist, shots_grouper, get_team_id, make_shot_chart, draw_court, SeasonNotFoundError, PlayerNotFoundError
 
 
-class NBA_Player:
+class NBAPlayer:
     def __init__(self, player_name, print_name=True):
         '''
         Player object from nba_api
@@ -558,8 +558,8 @@ class NBA_Player:
 
             for offset, val in zip(offsets,values1):
                 v1 =  verts*val + offset
-                path = Path(v1, orgpath.codes)
-                patch = PathPatch(path)
+                path = mpatches.Path(v1, orgpath.codes)
+                patch = mpatches.PathPatch(path)
                 patches.append(patch)
 
             pc = PatchCollection(patches, cmap=cm.get_cmap('RdYlBu_r'), edgecolors='black')

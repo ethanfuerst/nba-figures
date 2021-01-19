@@ -1,5 +1,4 @@
 import pandas as pd
-pd.options.display.max_columns = None
 import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -13,7 +12,6 @@ import datetime
 import html5lib
 from nba_api.stats.static import players, teams
 from nba_api.stats.endpoints import commonplayerinfo, playergamelog, playercareerstats, shotchartdetail, shotchartlineupdetail
-from nba_season import NBA_Season
 
 
 # - Custom errors
@@ -23,66 +21,8 @@ class PlayerNotFoundError(Exception):
 class SeasonNotFoundError(Exception):
     pass
 
-
-def thres_games(startyear=2000, endyear=datetime.datetime.today().year - 1, thres = 40):
-    '''
-    Returns a df detailing the number of games won by a number >= the threshold specified.
-
-    Parameters:
-
-
-    startyear (int, default: 2001)
-        The first season that you want to be in the df.
-            ex. 2015
-
-    endyear (int, default: current year - 1)
-        The last season that you want to be in the df.
-            ex. 2019
-    
-    thres (int, default: 40)
-        The margin of victory threshold for the df.
-            ex. 30
-    
-
-    Returns:
-
-    df
-        A pd.DataFrame() containing the season data with the following columns:
-            ['Season', 'Count', 'Game Nums', 'Projected']
-            'Count' is the number of games over thres.
-            'Projected' is for current seasons in play only.
-    '''
-
-    # - Need to make sure that startyear, endyear and thres are all integers
-    try:
-        startyear = int(startyear)
-        endyear = int(endyear)
-        thres = int(thres)
-    except:
-        # - This is probably because they inputted a string for season, and we need an int
-        raise TypeError("Wrong variable type for startyear, endyear or thres. Integer expected.")
-    # - Need to check that endyear season exists
-    try:
-        # - If there is data for endyear, we are good.
-        Season(endyear)
-    except:
-        # - If we can't get data from endyear, then raise SeasonNotFoundError
-        raise SeasonNotFoundError("There is no data for the " + str(endyear) + " season yet.")
-
-    years = [i for i in range(startyear, endyear + 1)]
-    tot = []
-    for i in years:
-        curr_season = NBA_Season(i)
-        year = curr_season.get_season()
-        num_games = len(year)
-        season = "'" +str(i)[2:] + " - '" + str(i + 1)[2:]
-        game_nums = list(year[year['MOV'] >= thres].index + 1)
-        year = year[year['MOV'] >= thres].copy()
-        count = len(year)
-        Projected = int(((count / num_games) * 1230) - count)
-        tot.append([season, count, game_nums, Projected])
-    
-    return pd.DataFrame(tot, columns=['Season', 'Count', 'Game Nums', 'Projected'])
+class TeamNotFoundError(Exception):
+    pass
 
 def draw_court(color='black', lw=2):
     '''

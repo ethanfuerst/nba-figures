@@ -9,16 +9,10 @@ import datetime
 import html5lib
 from nba_api.stats.static import players, teams
 from nba_api.stats.endpoints import commonplayerinfo, playergamelog, playercareerstats, shotchartdetail, leaguegamelog, shotchartlineupdetail
+from nba_methods import PlayerNotFoundError, SeasonNotFoundError
 
 
-# - Custom errors
-class PlayerNotFoundError(Exception):
-    pass
-
-class SeasonNotFoundError(Exception):
-    pass
-
-class NBA_Season:
+class NBASeason:
     def __init__(self, season=datetime.datetime.today().year - 1):
         '''
         Season object using data from basketball-reference.com
@@ -72,7 +66,7 @@ class NBA_Season:
         games.reset_index(inplace=True, drop=True)
         games.rename(columns={'Unnamed: 7': 'OT'}, inplace=True)
 
-        self.games = self.__clean_games(games)
+        self.games = games
         self.league = pd.DataFrame(teams.get_teams())
 
         try:
@@ -109,13 +103,13 @@ class NBA_Season:
     
     # - Private method (I think)
     def __clean_games(self, df):
+        df = df[df['Date'] != 'Playoffs'].copy()
         df['Season'] = self.season_str
         df['Year'] = pd.to_datetime(df['Date']).dt.year
         df['PTS'] = df['PTS'].astype(int)
         df['PTS.1'] = df['PTS.1'].astype(int)
         df['MOV'] = abs(df['PTS'] - df['PTS.1'])
         df['Date'] = pd.to_datetime(df['Date'])
-        df['Start (ET)'] = pd.to_datetime(df['Start (ET)'])
         df['OT'] = df['OT'].fillna('No overtime')
         return df
     
