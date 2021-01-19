@@ -9,21 +9,11 @@ import datetime
 import html5lib
 from nba_api.stats.static import players, teams
 from nba_api.stats.endpoints import commonplayerinfo, boxscoretraditionalv2, playergamelog, playercareerstats, teamgamelog, shotchartdetail, shotchartlineupdetail
-from nba_season import NBA_Season
-from nba_methods import make_shot_chart, shots_grouper
-
-# - Custom errors
-class PlayerNotFoundError(Exception):
-    pass
-
-class SeasonNotFoundError(Exception):
-    pass
-
-class TeamNotFoundError(Exception):
-    pass
+from nba_season import NBASeason
+from nba_methods import make_shot_chart, shots_grouper, SeasonNotFoundError, TeamNotFoundError
 
 
-class NBA_Team():
+class NBATeam():
     def __init__(self, team_abbrev):
         
         
