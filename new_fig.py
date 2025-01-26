@@ -17,6 +17,10 @@ from nba_api.stats.endpoints import (commonplayerinfo, playercareerstats,
 from nba_api.stats.static import players, teams
 from pandas import DataFrame
 
+def get_team_id(abbrev: str) -> str:
+    all_teams = pd.DataFrame(teams.get_teams())
+    return all_teams[all_teams['abbreviation'] == abbrev]['id'].iloc[0]
+
 def make_shot_fig(title, title_size, context, context_size):
     background_color = '#d9d9d9'
     fig, ax = plt.subplots(facecolor=background_color, figsize=(10,10))
@@ -110,63 +114,36 @@ def zone_label(row):
         return 'Backcourt'
 
 class ShotChart:
-    def __init__(self, player_name:str=None, seasons:List[int]=None, chart_params:Dict[str, Any]={}, **limiters):
+    def __init__(self, player_name:str=None, seasons:List[int]=None, chart_params:Dict[str, Any]={}, **data_filters):
         self.player_name = player_name
         player_search = players.find_players_by_full_name(self.player_name)
         if len(player_search) == 0:
             raise PlayerNotFoundError('Name not found in database. Try being more specific or look for the player here: https://stats.nba.com/players/')
-        self.player_id = player_search[0]['id']
+        self.player = player_search[0]
+        self.player_id = self.player['id']
         self.chart_params = chart_params
-        self.limiters = limiters
+        self.data_filters = data_filters
         self.seasons = seasons
-        df = self.get_career()
-        df = df[df['Team'] != 'TOT'][['Season', 'Team', 'TEAM_ID']].copy()
-        df['start'] = df['Season'].apply(lambda x: int(x[:4]))
-        df['end'] = df['start'] + 1
-        self._career = df.rename({'TEAM_ID': 'Team ID', 'start': 'season'}, axis=1)[['Team ID', 'season']]
+        self._career = self.get_career()
         
     def get_career(self):
-        '''
-        Returns a df of the player's totals and percentages for all season in the player's career.
-
-        Parameters:
-
-        season (int, default: current year - 1)
-            The season that you want to pull data from. 
-                Ex. 2003
-            If the player you specified doesn't have date from the season inputted, a SeasonNotFoundError will be thrown.
-        
-        Returns:
-
-        df
-            A pd.DataFrame() containing the player data with the following columns:
-                ['Player', 'Season', 'Team', 'TEAM_ID', 
-                'PLAYER_AGE', 'GP', 'GS', 'MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A',
-                'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'TS_PCT', 'OREB', 'DREB', 'REB', 'AST', 
-                'STL', 'BLK', 'TOV', 'PF', 'PTS']
-        '''
-        # - see more on https://github.com/swar/nba_api/blob/master/docs/nba_api/stats/endpoints/playercareerstats.md
-        log = playercareerstats.PlayerCareerStats(player_id=self.player_id, per_mode36='Totals')
-        df = log.get_data_frames()[0]
-
+        df = playercareerstats.PlayerCareerStats(player_id=self.player_id, per_mode36='Totals').get_data_frames()[0]
         df['Player'] = self.player_name
         df['Season'] = df['SEASON_ID'].copy()
         df['Team'] = df['TEAM_ABBREVIATION'].copy()
         df['TS_PCT'] = round(df['PTS'] / (2*(df['FGA'] + (.44 * df['FTA']))),3)
+        df = df[df['Team'] != 'TOT'][['Season', 'Team', 'TEAM_ID']].copy()
+        df['start'] = df['Season'].apply(lambda x: int(x[:4]))
+        df['end'] = df['start'] + 1
+        df = df.rename({'TEAM_ID': 'Team ID', 'start': 'season'}, axis=1)[['Team ID', 'season']]
 
-        # - Specify column order
-        df = df[['Player', 'Season', 'Team', 'TEAM_ID', 
-                'PLAYER_AGE', 'GP', 'GS', 'MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A',
-                'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'TS_PCT', 'OREB', 'DREB', 'REB', 'AST', 
-                'STL', 'BLK', 'TOV', 'PF', 'PTS']].copy()
-                
         return df
     
     def generate_chart(self):
         return self._generate_static_chart()
 
     def _generate_static_chart(self) -> Tuple[DataFrame, plt.Figure]:
-        df = self._fetch_data()
+        df = self._fetch_data(**self.data_filters)
         fig = self._make_shot_chart(df, **self.chart_params)
         
         return df, fig
@@ -398,8 +375,47 @@ class ShotChart:
 
         return fig
     
-    def _shots_grouper(self, shots, avgs) -> DataFrame:
-        # - Change zones
+    def _get_title(self, **data_filters) -> str:
+        if 'date_to_nullable' in data_filters.keys():
+            d_from = datetime.datetime.strptime(data_filters['date_from_nullable'], '%m-%d-%Y').strftime("%B %-d, %Y")
+            d_to = datetime.datetime.strptime(data_filters['date_to_nullable'], '%m-%d-%Y').strftime("%B %-d, %Y")
+            title += ' from ' + d_from + ' to ' + d_to
+        else:
+            if self.seasons is None:
+                # get most recent season
+                print('error')
+                return
+            if len(self.seasons) == 1:
+                title += ' in the ' + str(str(self.seasons[0]) + "-" + str(self.seasons[0] + 1)[2:]) + ' season'
+            elif self.seasons[1] - self.seasons[0] == 1:
+                title += ' in the ' + str(str(self.seasons[0]) + "-" + str(self.seasons[0] + 1)[2:]) + ' and ' +str(str(self.seasons[1]) + "-" + str(self.seasons[1] + 1)[2:]) + ' seasons'
+            else:
+                title += ' from the ' + str(str(self.seasons[0]) + "-" + str(self.seasons[0] + 1)[2:]) + ' to ' +str(str(self.seasons[1]) + "-" + str(self.seasons[1] + 1)[2:]) + ' seasons'
+        return title
+    
+    def _fetch_data(self, **data_filters) -> DataFrame:
+        if 'opponent_team_id' in data_filters.keys():
+            data_filters['opponent_team_id'] = get_team_id(data_filters['opponent_team_id'])
+        
+        if 'title' not in self.chart_params.keys():
+            self.chart_params['title'] = self._get_title(**data_filters)
+
+        log = shotchartdetail.ShotChartDetail(
+            team_id=0
+            , player_id=self.player_id
+            , context_measure_simple=['FGA', 'FG3A']
+            , **data_filters
+        )
+        
+        shots = log.get_data_frames()[0]
+        avgs = log.get_data_frames()[1]
+        
+        shots.reset_index(inplace=True, drop=True)
+        avgs.reset_index(inplace=True, drop=True)
+
+        if shots.empty:
+            raise ValueError('No data found for the given data_filters: ' + str(data_filters))
+        
         shots['ZONE'] = shots.apply(lambda row: zone_label(row), axis=1)
         avgs['ZONE'] = avgs.apply(lambda row: zone_label(row), axis=1)
 
@@ -425,99 +441,23 @@ class ShotChart:
         to_plot['P_PPS'] = to_plot['PLAYER_PCT'] * to_plot['PTS']
         to_plot['L_PPS'] = to_plot['LEAGUE_PCT'] * to_plot['PTS']
         to_plot['D_PPS'] = to_plot['P_PPS'] - to_plot['L_PPS']
-
+        
         return to_plot
-    
-    def _fetch_data(self, **limiters) -> DataFrame:
-        reassign_dict = dict(zip(['GameID', 'AheadBehind', 'ClutchTime', 'DateFrom', 'DateTo', 'GameSegment', 'LastNGames', 'Location', 
-                        'Month', 'OpponentTeam', 'Outcome', 'Period', 'PlayerPosition', 'PointDiff', 'RookieYear', 
-                        'SeasonSegment', 'SeasonType', 'VsConference', 'VsDivision'], 
-                        ['game_id_nullable','ahead_behind_nullable', 'clutch_time_nullable', 'date_from_nullable', 
-                        'date_to_nullable', 'game_segment_nullable', 'last_n_games', 'location_nullable', 
-                        'month', 'opponent_team_id', 'outcome_nullable', 'period', 'player_position_nullable', 
-                        'point_diff_nullable', 'rookie_year_nullable', 'season_segment_nullable', 
-                        'season_type_all_star', 'vs_conference_nullable', 'vs_division_nullable']))
-        
-        new_limiters = {reassign_dict[key]: value for key, value in limiters.items()}
-
-        if 'opponent_team_id' in new_limiters.keys():
-            new_limiters['opponent_team_id'] = get_team_id(new_limiters['opponent_team_id'])
-        
-        # - Create title
-        title = self.player_name
-        if 'date_to_nullable' in new_limiters.keys():
-            d_from = datetime.datetime.strptime(new_limiters['date_from_nullable'], '%m-%d-%Y').strftime("%B %-d, %Y")
-            d_to = datetime.datetime.strptime(new_limiters['date_to_nullable'], '%m-%d-%Y').strftime("%B %-d, %Y")
-            title += ' from ' + d_from + ' to ' + d_to
-        else:
-            if self.seasons is None:
-                # get most recent season
-                print('error')
-                return
-            if len(self.seasons) == 1:
-                title += ' in the ' + str(str(self.seasons[0]) + "-" + str(self.seasons[0] + 1)[2:]) + ' season'
-            elif self.seasons[1] - self.seasons[0] == 1:
-                title += ' in the ' + str(str(self.seasons[0]) + "-" + str(self.seasons[0] + 1)[2:]) + ' and ' +str(str(self.seasons[1]) + "-" + str(self.seasons[1] + 1)[2:]) + ' seasons'
-            else:
-                title += ' from the ' + str(str(self.seasons[0]) + "-" + str(self.seasons[0] + 1)[2:]) + ' to ' +str(str(self.seasons[1]) + "-" + str(self.seasons[1] + 1)[2:]) + ' seasons'
-        if 'title' not in self.chart_params.keys():
-            self.chart_params['title'] = title
-
-        shots = pd.DataFrame()
-        avgs = pd.DataFrame()
-
-        # - if dates are not null
-        if 'date_to_nullable' in new_limiters.keys():
-            # - Query with dates
-            log = shotchartdetail.ShotChartDetail(team_id=0, player_id=self.player_id, 
-                                                    context_measure_simple=['FGA', 'FG3A'], **new_limiters)
-            df_1 = log.get_data_frames()[0]
-            df_2 = log.get_data_frames()[1]
-            # df_1['Season'] = season_df.iloc[i]['season']
-            shots = pd.concat([shots, df_1])
-            avgs = pd.concat([avgs, df_2])
-        # - else when seasons not null
-        else:
-            # - Query with seasons
-            if len(self.seasons) > 2:
-                raise TypeError('The seasons variable must be a list of length 2 or 1 with years in integer form. Example: [2005, 2018]')
-            else:
-                # - Get the seasons from ref between two dates
-                first = self.seasons[0]
-                if len(self.seasons) == 1:
-                    last = self.seasons[0]
-                else:
-                    last = self.seasons[1]
-                # - Get all seasons and team ID between first and last
-                season_df = self._career[(self._career['season'].astype(int) >= first) & (self._career['season'].astype(int) <= last)].reset_index(drop=True).copy()
-
-            # - Change format of season column to work with the API
-            season_df['season'] = season_df['season'].apply(lambda x: str(x) + "-" + str(x + 1)[2:])
-            # - Now create the df for the shot chart creation with the dfs given
-            for i in range(len(season_df)):
-                log = shotchartdetail.ShotChartDetail(team_id=0, player_id=self.player_id, \
-                    season_nullable=season_df.iloc[i]['season'], context_measure_simple=['FGA', 'FG3A'], **new_limiters)
-                df_1 = log.get_data_frames()[0]
-                df_2 = log.get_data_frames()[1]
-                df_1['Season'] = season_df.iloc[i]['season']
-                shots = pd.concat([shots, df_1])
-                avgs = pd.concat([avgs, df_2])
-        
-        shots.reset_index(inplace=True, drop=True)
-
-        if len(shots) == 0:
-            if len(self.seasons) == 1:
-                raise SeasonNotFoundError(str(self.player_name) + ' has no data recorded for the ' + str(self.seasons[0]) + ' season with those limiters')
-            else:
-                raise SeasonNotFoundError(str(self.player_name) + ' has no data recorded for the ' + str(self.seasons[0]) + '-' + str(self.seasons[1]) + ' seasons with those limiters')
-        
-        return self._shots_grouper(shots, avgs)
 
 if __name__ == '__main__':
-    ShotChart(player_name='luka doncic', seasons=[2019], SeasonType='Regular Season', chart_params=dict(kind='hex', 
+    ShotChart(player_name='luka doncic', seasons=[2019], season_type_all_star='Regular Season', chart_params=dict(kind='hex', 
                 scale_factor=4, hex_grid=35, 
                 title=luka.name + '\n2019-20 All-NBA First Team Guard',
                 context='In just his second season, Luka has taken the league by storm. He was named an All-Star\n ' \
                         "starter finished the regular season averaging 30.9 points. He continued this production\n" \
                         'in the bubble, leading the Mavericks to the playoffs and averaging 31 points per game while\n' \
                         'pushing the Clippers to 6 games.')).generate_chart()
+    # ShotChart(
+    #     player_name='luka doncic'
+    #     , seasons=[2024]
+    #     , SeasonType='Regular Season'
+    #     , DateFrom='2024-12-21'
+    #     , chart_params=dict(kind='hex', 
+    #             scale_factor=4, hex_grid=35, 
+    #             title=luka.name + '\n2024-25 end',
+    #             context='regular season')).generate_chart()
