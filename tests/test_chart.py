@@ -1,5 +1,8 @@
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 import pytest
+from matplotlib.collections import PatchCollection
 
 from nbafigs.viz.chart import make_shot_chart, shots_grouper, zone_label
 
@@ -110,3 +113,123 @@ def test_make_shot_chart_no_pct(sample_grouped_df):
 
     assert isinstance(fig, plt.Figure)
     plt.close(fig)
+
+
+def test_make_shot_chart_only_2pt_shots(sample_grouped_df):
+    df = sample_grouped_df.copy()
+    df['PTS'] = 2
+    fig = make_shot_chart(df, kind='normal', show_pct=True)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_only_3pt_shots(sample_grouped_df):
+    df = sample_grouped_df.copy()
+    df['PTS'] = 3
+    fig = make_shot_chart(df, kind='normal', show_pct=True)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_no_made_2pt(sample_grouped_df):
+    df = sample_grouped_df.copy()
+    # Keep 2pt shots but none made
+    df.loc[df['PTS'] == 2, 'SHOT_MADE'] = 0
+    fig = make_shot_chart(df, kind='normal', show_pct=True)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_no_made_3pt(sample_grouped_df):
+    df = sample_grouped_df.copy()
+    df.loc[df['PTS'] == 3, 'SHOT_MADE'] = 0
+    fig = make_shot_chart(df, kind='normal', show_pct=True)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_hex_no_misses(sample_grouped_df):
+    fig = make_shot_chart(sample_grouped_df, kind='hex', show_misses=False)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_hex_with_pct(sample_grouped_df):
+    fig = make_shot_chart(sample_grouped_df, kind='hex', show_pct=True)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_no_shots_at_all():
+    df = pd.DataFrame(
+        {
+            'X': np.array([], dtype=int),
+            'Y': np.array([], dtype=int),
+            'SHOT_DISTANCE': np.array([], dtype=int),
+            'PTS': np.array([], dtype=int),
+            'SHOT_TYPE': np.array([], dtype=str),
+            'SHOT_MADE': np.array([], dtype=int),
+            'ZONE': np.array([], dtype=str),
+            'PLAYER_PCT': np.array([], dtype=float),
+            'LEAGUE_PCT': np.array([], dtype=float),
+            'PCT_DIFF': np.array([], dtype=float),
+            'P_PPS': np.array([], dtype=float),
+            'L_PPS': np.array([], dtype=float),
+            'D_PPS': np.array([], dtype=float),
+        }
+    )
+    fig = make_shot_chart(df, kind='normal', show_pct=True)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_hex_pct_diff_with_clim(sample_grouped_df):
+    """Covers the PCT_DIFF clim branches where pc.get_clim() returns non-None."""
+    df = sample_grouped_df.copy()
+    # Make PCT_DIFF values small enough to trigger m < 0.025 branch
+    df['PCT_DIFF'] = 0.01
+    fig = make_shot_chart(df, kind='hex', scale='PCT_DIFF')
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_hex_scale_factor_1(sample_grouped_df):
+    """Covers the scale_factor == 1 branch."""
+    fig = make_shot_chart(sample_grouped_df, kind='hex', scale_factor=1)
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_make_shot_chart_hex_pct_diff_clim_not_none(mocker, sample_grouped_df):
+    """Covers the pc.get_clim()[0] is not None branch for PCT_DIFF."""
+    orig_init = PatchCollection.__init__
+
+    def patched_init(self, *args, **kwargs):
+        orig_init(self, *args, **kwargs)
+        self.set_clim([-0.1, 0.1])
+
+    mocker.patch.object(PatchCollection, '__init__', patched_init)
+
+    fig = make_shot_chart(sample_grouped_df, kind='hex', scale='PCT_DIFF')
+
+    assert isinstance(fig, plt.Figure)
+    plt.close(fig)
+
+
+def test_zone_label_above_break_3_backcourt():
+    row = {
+        'SHOT_ZONE_RANGE': '24+ ft.',
+        'SHOT_ZONE_AREA': 'Left Side(L)',
+        'SHOT_ZONE_BASIC': 'Above the Break 3',
+    }
+
+    assert zone_label(row) == 'Backcourt'
