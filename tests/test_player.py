@@ -1,9 +1,6 @@
-import matplotlib
 import matplotlib.pyplot as plt
 import pandas as pd
 import pytest
-
-matplotlib.use('Agg')
 
 from nbafigs.core.player import NBAPlayer
 from nbafigs.errors import PlayerNotFoundError, SeasonNotFoundError

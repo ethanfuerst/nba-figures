@@ -1,7 +1,4 @@
-import matplotlib
 import matplotlib.pyplot as plt
-
-matplotlib.use('Agg')
 
 from nbafigs.viz.chart import make_shot_chart, shots_grouper, zone_label
 

@@ -1,7 +1,4 @@
-import matplotlib
 import matplotlib.pyplot as plt
-
-matplotlib.use('Agg')
 
 from nbafigs.viz.court import _get_texture_path, draw_court, make_shot_fig
 

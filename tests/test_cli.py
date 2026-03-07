@@ -1,8 +1,5 @@
-import matplotlib
 import matplotlib.pyplot as plt
 from click.testing import CliRunner
-
-matplotlib.use('Agg')
 
 from nbafigs.cli import main
 
