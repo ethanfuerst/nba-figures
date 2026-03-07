@@ -37,7 +37,7 @@ def test_cli_version():
 
 
 def test_cli_player_with_output(mocker, tmp_path, sample_grouped_df):
-    fig, ax = plt.subplots()
+    fig, _ = plt.subplots()
     mocker.patch(
         'nbafigs.cli.player_shot_chart',
         return_value=(sample_grouped_df, fig),
@@ -55,7 +55,7 @@ def test_cli_player_with_output(mocker, tmp_path, sample_grouped_df):
 
 
 def test_cli_team_with_output(mocker, tmp_path, sample_grouped_df):
-    fig, ax = plt.subplots()
+    fig, _ = plt.subplots()
     mocker.patch(
         'nbafigs.cli.team_shot_chart',
         return_value=(sample_grouped_df, fig),

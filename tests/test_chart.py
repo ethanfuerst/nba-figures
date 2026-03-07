@@ -1,156 +1,37 @@
 import matplotlib.pyplot as plt
+import pytest
 
 from nbafigs.viz.chart import make_shot_chart, shots_grouper, zone_label
 
 
-def test_zone_label_less_than_8ft():
+@pytest.mark.parametrize(
+    ('shot_range', 'area', 'basic', 'expected'),
+    [
+        ('Less Than 8 ft.', 'Center(C)', 'Restricted Area', 'Less Than 8 ft.'),
+        ('8-16 ft.', 'Left Side(L)', 'Mid-Range', '8-16 ft. (L)'),
+        ('8-16 ft.', 'Right Side(L)', 'Mid-Range', '8-16 ft. (R)'),
+        ('8-16 ft.', 'Center(C)', 'Mid-Range', '8-16 ft. (C)'),
+        ('16-24 ft.', 'Left Side(L)', 'Mid-Range', '16-24 ft. (L)'),
+        ('16-24 ft.', 'Right Side(L)', 'Mid-Range', '16-24 ft. (R)'),
+        ('16-24 ft.', 'Left Side Center(LC)', 'Mid-Range', '16-24 ft. (LC)'),
+        ('16-24 ft.', 'Right Side Center(LC)', 'Mid-Range', '16-24 ft. (RC)'),
+        ('16-24 ft.', 'Center(C)', 'Mid-Range', 'Mid Range (C)'),
+        ('24+ ft.', 'Left Side(L)', 'Left Corner 3', 'Left Corner 3'),
+        ('24+ ft.', 'Right Side(R)', 'Right Corner 3', 'Right Corner 3'),
+        ('24+ ft.', 'Center(C)', 'Above the Break 3', '3 Pointer (C)'),
+        ('24+ ft.', 'Left Side Center(LC)', 'Above the Break 3', '3 Pointer (LC)'),
+        ('24+ ft.', 'Right Side Center(LC)', 'Above the Break 3', '3 Pointer (RC)'),
+        ('Back Court Shot', 'Back Court(BC)', 'Backcourt', 'Backcourt'),
+    ],
+)
+def test_zone_label(shot_range, area, basic, expected):
     row = {
-        'SHOT_ZONE_RANGE': 'Less Than 8 ft.',
-        'SHOT_ZONE_AREA': 'Center(C)',
-        'SHOT_ZONE_BASIC': 'Restricted Area',
+        'SHOT_ZONE_RANGE': shot_range,
+        'SHOT_ZONE_AREA': area,
+        'SHOT_ZONE_BASIC': basic,
     }
 
-    assert zone_label(row) == 'Less Than 8 ft.'
-
-
-def test_zone_label_8_16_left():
-    row = {
-        'SHOT_ZONE_RANGE': '8-16 ft.',
-        'SHOT_ZONE_AREA': 'Left Side(L)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '8-16 ft. (L)'
-
-
-def test_zone_label_8_16_right():
-    row = {
-        'SHOT_ZONE_RANGE': '8-16 ft.',
-        'SHOT_ZONE_AREA': 'Right Side(L)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '8-16 ft. (R)'
-
-
-def test_zone_label_8_16_center():
-    row = {
-        'SHOT_ZONE_RANGE': '8-16 ft.',
-        'SHOT_ZONE_AREA': 'Center(C)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '8-16 ft. (C)'
-
-
-def test_zone_label_16_24_left():
-    row = {
-        'SHOT_ZONE_RANGE': '16-24 ft.',
-        'SHOT_ZONE_AREA': 'Left Side(L)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '16-24 ft. (L)'
-
-
-def test_zone_label_16_24_right():
-    row = {
-        'SHOT_ZONE_RANGE': '16-24 ft.',
-        'SHOT_ZONE_AREA': 'Right Side(L)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '16-24 ft. (R)'
-
-
-def test_zone_label_16_24_left_center():
-    row = {
-        'SHOT_ZONE_RANGE': '16-24 ft.',
-        'SHOT_ZONE_AREA': 'Left Side Center(LC)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '16-24 ft. (LC)'
-
-
-def test_zone_label_16_24_right_center():
-    row = {
-        'SHOT_ZONE_RANGE': '16-24 ft.',
-        'SHOT_ZONE_AREA': 'Right Side Center(LC)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == '16-24 ft. (RC)'
-
-
-def test_zone_label_16_24_center():
-    row = {
-        'SHOT_ZONE_RANGE': '16-24 ft.',
-        'SHOT_ZONE_AREA': 'Center(C)',
-        'SHOT_ZONE_BASIC': 'Mid-Range',
-    }
-
-    assert zone_label(row) == 'Mid Range (C)'
-
-
-def test_zone_label_left_corner_3():
-    row = {
-        'SHOT_ZONE_RANGE': '24+ ft.',
-        'SHOT_ZONE_AREA': 'Left Side(L)',
-        'SHOT_ZONE_BASIC': 'Left Corner 3',
-    }
-
-    assert zone_label(row) == 'Left Corner 3'
-
-
-def test_zone_label_right_corner_3():
-    row = {
-        'SHOT_ZONE_RANGE': '24+ ft.',
-        'SHOT_ZONE_AREA': 'Right Side(R)',
-        'SHOT_ZONE_BASIC': 'Right Corner 3',
-    }
-
-    assert zone_label(row) == 'Right Corner 3'
-
-
-def test_zone_label_above_break_3_center():
-    row = {
-        'SHOT_ZONE_RANGE': '24+ ft.',
-        'SHOT_ZONE_AREA': 'Center(C)',
-        'SHOT_ZONE_BASIC': 'Above the Break 3',
-    }
-
-    assert zone_label(row) == '3 Pointer (C)'
-
-
-def test_zone_label_above_break_3_left_center():
-    row = {
-        'SHOT_ZONE_RANGE': '24+ ft.',
-        'SHOT_ZONE_AREA': 'Left Side Center(LC)',
-        'SHOT_ZONE_BASIC': 'Above the Break 3',
-    }
-
-    assert zone_label(row) == '3 Pointer (LC)'
-
-
-def test_zone_label_above_break_3_right_center():
-    row = {
-        'SHOT_ZONE_RANGE': '24+ ft.',
-        'SHOT_ZONE_AREA': 'Right Side Center(LC)',
-        'SHOT_ZONE_BASIC': 'Above the Break 3',
-    }
-
-    assert zone_label(row) == '3 Pointer (RC)'
-
-
-def test_zone_label_backcourt():
-    row = {
-        'SHOT_ZONE_RANGE': 'Back Court Shot',
-        'SHOT_ZONE_AREA': 'Back Court(BC)',
-        'SHOT_ZONE_BASIC': 'Backcourt',
-    }
-
-    assert zone_label(row) == 'Backcourt'
+    assert zone_label(row) == expected
 
 
 def test_shots_grouper_returns_expected_columns(sample_shots_df, sample_avgs_df):
