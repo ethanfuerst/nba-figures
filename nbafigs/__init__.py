@@ -1,8 +1,10 @@
-from nbafigs.core.player import NBAPlayer
-from nbafigs.core.team import NBATeam
-from nbafigs.errors import PlayerNotFoundError, SeasonNotFoundError, TeamNotFoundError
-from nbafigs.viz.chart import make_shot_chart
-from nbafigs.viz.court import draw_court
+from nbafigs.core.player import NBAPlayer as NBAPlayer
+from nbafigs.core.team import NBATeam as NBATeam
+from nbafigs.errors import PlayerNotFoundError as PlayerNotFoundError
+from nbafigs.errors import SeasonNotFoundError as SeasonNotFoundError
+from nbafigs.errors import TeamNotFoundError as TeamNotFoundError
+from nbafigs.viz.chart import make_shot_chart as make_shot_chart
+from nbafigs.viz.court import draw_court as draw_court
 
 __version__ = '0.1.0'
 

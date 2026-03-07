@@ -5,7 +5,7 @@ from nba_api.stats.static import teams
 
 from nbafigs.errors import TeamNotFoundError
 from nbafigs.sources.player import fetch_shot_chart
-from nbafigs.sources.team import fetch_box_score, fetch_team_game_log, find_team
+from nbafigs.sources.team import fetch_box_score, fetch_team_game_log
 from nbafigs.viz.chart import make_shot_chart, shots_grouper
 
 

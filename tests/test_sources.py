@@ -1,5 +1,4 @@
 import pandas as pd
-import pytest
 
 from nbafigs.sources import nba_api_call
 from nbafigs.sources.player import (

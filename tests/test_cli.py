@@ -1,7 +1,5 @@
 import matplotlib
 import matplotlib.pyplot as plt
-import pandas as pd
-import pytest
 from click.testing import CliRunner
 
 matplotlib.use('Agg')
