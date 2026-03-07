@@ -15,7 +15,7 @@ from nbafigs.viz.chart import make_shot_chart, shots_grouper
 
 
 class NBAPlayer:
-    '''Represents an NBA player and provides methods for shot chart generation.
+    """Represents an NBA player and provides methods for shot chart generation.
 
     Args:
         player_name: The name of the player. If the name is too general,
@@ -24,7 +24,7 @@ class NBAPlayer:
 
     Raises:
         PlayerNotFoundError: If no player matches the given name.
-    '''
+    """
 
     def __init__(self, player_name, print_name=True):
         player_search = find_player(player_name)
@@ -72,7 +72,7 @@ class NBAPlayer:
         return f'NBA_Player(player_name={self.name}, print_name={self.print_name})'
 
     def get_season(self, season=None, season_type='regular'):
-        '''Fetch a single-season game log for the player.
+        """Fetch a single-season game log for the player.
 
         Args:
             season: Season start year (e.g. 2023). Defaults to current year - 1.
@@ -83,7 +83,7 @@ class NBAPlayer:
 
         Raises:
             SeasonNotFoundError: If no data exists for the given season.
-        '''
+        """
         if season is None:
             season = datetime.datetime.today().year - 1
 
@@ -114,21 +114,44 @@ class NBAPlayer:
 
         df = df[
             [
-                'Season', 'Player', 'Game_ID', 'GAME_DATE', 'MATCHUP', 'WL',
-                'MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA',
-                'FT_PCT', 'TS_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV', 'PF',
-                'PTS', 'PLUS_MINUS',
+                'Season',
+                'Player',
+                'Game_ID',
+                'GAME_DATE',
+                'MATCHUP',
+                'WL',
+                'MIN',
+                'FGM',
+                'FGA',
+                'FG_PCT',
+                'FG3M',
+                'FG3A',
+                'FG3_PCT',
+                'FTM',
+                'FTA',
+                'FT_PCT',
+                'TS_PCT',
+                'OREB',
+                'DREB',
+                'REB',
+                'AST',
+                'STL',
+                'BLK',
+                'TOV',
+                'PF',
+                'PTS',
+                'PLUS_MINUS',
             ]
         ]
 
         return df
 
     def get_career(self):
-        '''Fetch career totals for the player.
+        """Fetch career totals for the player.
 
         Returns:
             DataFrame of career stats by season.
-        '''
+        """
         df = fetch_player_career_stats(self.player_id)
 
         df['Player'] = self.name
@@ -138,17 +161,40 @@ class NBAPlayer:
 
         df = df[
             [
-                'Player', 'Season', 'Team', 'TEAM_ID',
-                'PLAYER_AGE', 'GP', 'GS', 'MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A',
-                'FG3_PCT', 'FTM', 'FTA', 'FT_PCT', 'TS_PCT', 'OREB', 'DREB', 'REB', 'AST',
-                'STL', 'BLK', 'TOV', 'PF', 'PTS',
+                'Player',
+                'Season',
+                'Team',
+                'TEAM_ID',
+                'PLAYER_AGE',
+                'GP',
+                'GS',
+                'MIN',
+                'FGM',
+                'FGA',
+                'FG_PCT',
+                'FG3M',
+                'FG3A',
+                'FG3_PCT',
+                'FTM',
+                'FTA',
+                'FT_PCT',
+                'TS_PCT',
+                'OREB',
+                'DREB',
+                'REB',
+                'AST',
+                'STL',
+                'BLK',
+                'TOV',
+                'PF',
+                'PTS',
             ]
         ].copy()
 
         return df
 
     def get_full_career(self, season_type='regular'):
-        '''Fetch game logs for all seasons in the player's career.
+        """Fetch game logs for all seasons in the player's career.
 
         Args:
             season_type: One of 'regular', 'preseason', 'playoffs', 'allstar',
@@ -156,7 +202,7 @@ class NBAPlayer:
 
         Returns:
             DataFrame of game logs across all requested seasons.
-        '''
+        """
         career_seasons = self.get_career()
         seasons = [int(i[:4]) for i in career_seasons['Season'].values.astype(str)]
 
@@ -198,22 +244,61 @@ class NBAPlayer:
 
         df = df[
             [
-                'Season', 'Season Type', 'Player', 'Game_ID', 'GAME_DATE', 'MATCHUP', 'WL',
-                'MIN', 'FGM', 'FGA', 'FG_PCT', 'FG3M', 'FG3A', 'FG3_PCT', 'FTM', 'FTA',
-                'FT_PCT', 'TS_PCT', 'OREB', 'DREB', 'REB', 'AST', 'STL', 'BLK', 'TOV',
-                'PF', 'PTS', 'PLUS_MINUS',
+                'Season',
+                'Season Type',
+                'Player',
+                'Game_ID',
+                'GAME_DATE',
+                'MATCHUP',
+                'WL',
+                'MIN',
+                'FGM',
+                'FGA',
+                'FG_PCT',
+                'FG3M',
+                'FG3A',
+                'FG3_PCT',
+                'FTM',
+                'FTA',
+                'FT_PCT',
+                'TS_PCT',
+                'OREB',
+                'DREB',
+                'REB',
+                'AST',
+                'STL',
+                'BLK',
+                'TOV',
+                'PF',
+                'PTS',
+                'PLUS_MINUS',
             ]
         ].copy()
         cols_as_int = [
-            'MIN', 'FGM', 'FGA', 'FG3M', 'FG3A', 'FTM', 'FTA', 'OREB', 'DREB', 'REB',
-            'AST', 'STL', 'BLK', 'TOV', 'PF', 'PTS', 'PLUS_MINUS',
+            'MIN',
+            'FGM',
+            'FGA',
+            'FG3M',
+            'FG3A',
+            'FTM',
+            'FTA',
+            'OREB',
+            'DREB',
+            'REB',
+            'AST',
+            'STL',
+            'BLK',
+            'TOV',
+            'PF',
+            'PTS',
+            'PLUS_MINUS',
         ]
         df[cols_as_int] = df[cols_as_int].astype(int)
 
         return df
 
     def get_shot_chart(self, seasons=None, chart_params=None, **limiters):
-        '''Generate a shot chart for the player.
+        """Generate a shot chart for the player.
 
         Args:
             seasons: List of 1 or 2 season start years (e.g. [2023] or [2020, 2023]).
@@ -226,7 +311,7 @@ class NBAPlayer:
 
         Raises:
             SeasonNotFoundError: If no shot data is found.
-        '''
+        """
         if chart_params is None:
             chart_params = {}
         to_plot = self.format_shots(seasons, chart_params, **limiters)
@@ -234,7 +319,7 @@ class NBAPlayer:
         return to_plot, fig
 
     def format_shots(self, seasons, chart_params, **limiters):
-        '''Pull and format shot data for chart generation.
+        """Pull and format shot data for chart generation.
 
         Args:
             seasons: List of season start years.
@@ -246,30 +331,61 @@ class NBAPlayer:
 
         Raises:
             SeasonNotFoundError: If no shot data is found.
-        '''
+        """
         reassign_dict = dict(
             zip(
                 [
-                    'GameID', 'AheadBehind', 'ClutchTime', 'DateFrom', 'DateTo',
-                    'GameSegment', 'LastNGames', 'Location', 'Month', 'OpponentTeam',
-                    'Outcome', 'Period', 'PlayerPosition', 'PointDiff', 'RookieYear',
-                    'SeasonSegment', 'SeasonType', 'VsConference', 'VsDivision',
+                    'GameID',
+                    'AheadBehind',
+                    'ClutchTime',
+                    'DateFrom',
+                    'DateTo',
+                    'GameSegment',
+                    'LastNGames',
+                    'Location',
+                    'Month',
+                    'OpponentTeam',
+                    'Outcome',
+                    'Period',
+                    'PlayerPosition',
+                    'PointDiff',
+                    'RookieYear',
+                    'SeasonSegment',
+                    'SeasonType',
+                    'VsConference',
+                    'VsDivision',
                 ],
                 [
-                    'game_id_nullable', 'ahead_behind_nullable', 'clutch_time_nullable',
-                    'date_from_nullable', 'date_to_nullable', 'game_segment_nullable',
-                    'last_n_games', 'location_nullable', 'month', 'opponent_team_id',
-                    'outcome_nullable', 'period', 'player_position_nullable',
-                    'point_diff_nullable', 'rookie_year_nullable', 'season_segment_nullable',
-                    'season_type_all_star', 'vs_conference_nullable', 'vs_division_nullable',
+                    'game_id_nullable',
+                    'ahead_behind_nullable',
+                    'clutch_time_nullable',
+                    'date_from_nullable',
+                    'date_to_nullable',
+                    'game_segment_nullable',
+                    'last_n_games',
+                    'location_nullable',
+                    'month',
+                    'opponent_team_id',
+                    'outcome_nullable',
+                    'period',
+                    'player_position_nullable',
+                    'point_diff_nullable',
+                    'rookie_year_nullable',
+                    'season_segment_nullable',
+                    'season_type_all_star',
+                    'vs_conference_nullable',
+                    'vs_division_nullable',
                 ],
+                strict=False,
             )
         )
 
         new_limiters = {reassign_dict[key]: value for key, value in limiters.items()}
 
         if 'opponent_team_id' in new_limiters:
-            new_limiters['opponent_team_id'] = get_team_id(new_limiters['opponent_team_id'])
+            new_limiters['opponent_team_id'] = get_team_id(
+                new_limiters['opponent_team_id']
+            )
 
         title = self.name
         if 'date_to_nullable' in new_limiters:
@@ -315,10 +431,14 @@ class NBAPlayer:
 
             first = seasons[0]
             last = seasons[0] if len(seasons) == 1 else seasons[1]
-            season_df = self._career[
-                (self._career['season'].astype(int) >= first)
-                & (self._career['season'].astype(int) <= last)
-            ].reset_index(drop=True).copy()
+            season_df = (
+                self._career[
+                    (self._career['season'].astype(int) >= first)
+                    & (self._career['season'].astype(int) <= last)
+                ]
+                .reset_index(drop=True)
+                .copy()
+            )
 
             season_df['season'] = season_df['season'].apply(
                 lambda x: f'{x}-{str(x + 1)[2:]}'

@@ -11,7 +11,7 @@ from nbafigs.viz.court import make_shot_fig
 
 
 def zone_label(row):
-    '''Create a standardized zone label from shot zone columns.
+    """Create a standardized zone label from shot zone columns.
 
     Args:
         row: A row from the shot chart DataFrame with SHOT_ZONE_RANGE,
@@ -19,7 +19,7 @@ def zone_label(row):
 
     Returns:
         A string zone label.
-    '''
+    """
     if row['SHOT_ZONE_RANGE'] == '8-16 ft.':
         if row['SHOT_ZONE_AREA'] == 'Left Side(L)':
             return '8-16 ft. (L)'
@@ -58,7 +58,7 @@ def zone_label(row):
 
 
 def shots_grouper(shots, avgs):
-    '''Group shots by zone and merge with league averages.
+    """Group shots by zone and merge with league averages.
 
     Args:
         shots: DataFrame of individual shot records from the nba_api.
@@ -67,13 +67,16 @@ def shots_grouper(shots, avgs):
     Returns:
         DataFrame with columns: X, Y, SHOT_DISTANCE, PTS, SHOT_TYPE,
         SHOT_MADE, ZONE, PLAYER_PCT, LEAGUE_PCT, PCT_DIFF, P_PPS, L_PPS, D_PPS.
-    '''
+    """
     shots['ZONE'] = shots.apply(lambda row: zone_label(row), axis=1)
     avgs['ZONE'] = avgs.apply(lambda row: zone_label(row), axis=1)
 
-    shots_group = shots.groupby(by=['ZONE']).sum(numeric_only=True).reset_index()[
-        ['ZONE', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG']
-    ].copy()
+    shots_group = (
+        shots.groupby(by=['ZONE'])
+        .sum(numeric_only=True)
+        .reset_index()[['ZONE', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG']]
+        .copy()
+    )
     shots_group['AVG_FG_PCT'] = round(
         shots_group['SHOT_MADE_FLAG'] / shots_group['SHOT_ATTEMPTED_FLAG'], 3
     )
@@ -90,15 +93,30 @@ def shots_grouper(shots, avgs):
 
     to_plot = pd.merge(shots, merged, on=['ZONE'])[
         [
-            'LOC_X', 'LOC_Y', 'SHOT_DISTANCE', 'SHOT_TYPE', 'ACTION_TYPE',
-            'SHOT_MADE_FLAG_x', 'ZONE',
-            'PLAYER_PCT', 'LEAGUE_PCT', 'PCT_DIFF',
+            'LOC_X',
+            'LOC_Y',
+            'SHOT_DISTANCE',
+            'SHOT_TYPE',
+            'ACTION_TYPE',
+            'SHOT_MADE_FLAG_x',
+            'ZONE',
+            'PLAYER_PCT',
+            'LEAGUE_PCT',
+            'PCT_DIFF',
         ]
     ]
     to_plot['SHOT_TYPE'] = to_plot['SHOT_TYPE'].astype(str).str[0].astype(int)
     to_plot.columns = [
-        'X', 'Y', 'SHOT_DISTANCE', 'PTS', 'SHOT_TYPE', 'SHOT_MADE', 'ZONE',
-        'PLAYER_PCT', 'LEAGUE_PCT', 'PCT_DIFF',
+        'X',
+        'Y',
+        'SHOT_DISTANCE',
+        'PTS',
+        'SHOT_TYPE',
+        'SHOT_MADE',
+        'ZONE',
+        'PLAYER_PCT',
+        'LEAGUE_PCT',
+        'PCT_DIFF',
     ]
 
     to_plot['P_PPS'] = to_plot['PLAYER_PCT'] * to_plot['PTS']
@@ -109,17 +127,28 @@ def shots_grouper(shots, avgs):
 
 
 def make_shot_chart(
-    df, kind='normal', show_misses=True,
-    title=None, title_size=22,
-    context=None, context_size=14, show_pct=True,
-    make_marker='o', miss_marker='x',
-    make_marker_size=90, miss_marker_size=86,
-    make_marker_color='#007A33', miss_marker_color='#C80A18',
-    make_width=1, miss_width=3,
-    hex_grid=50, scale_factor=5, min_factor=0,
+    df,
+    kind='normal',
+    show_misses=True,
+    title=None,
+    title_size=22,
+    context=None,
+    context_size=14,
+    show_pct=True,
+    make_marker='o',
+    miss_marker='x',
+    make_marker_size=90,
+    miss_marker_size=86,
+    make_marker_color='#007A33',
+    miss_marker_color='#C80A18',
+    make_width=1,
+    miss_width=3,
+    hex_grid=50,
+    scale_factor=5,
+    min_factor=0,
     scale='P_PPS',
 ):
-    '''Render a shot chart figure.
+    """Render a shot chart figure.
 
     Args:
         df: DataFrame from shots_grouper() with required columns.
@@ -145,7 +174,7 @@ def make_shot_chart(
 
     Returns:
         A matplotlib Figure.
-    '''
+    """
     fig, ax = make_shot_fig(title, title_size, context, context_size)
 
     df_t = df.copy()
@@ -188,54 +217,87 @@ def make_shot_chart(
             pass
         elif (att_2 != 0) and (att_3 == 0):
             plt.text(
-                txt_x, txt_b, _2_str,
-                horizontalalignment='right', verticalalignment='bottom', fontsize=f_size,
+                txt_x,
+                txt_b,
+                _2_str,
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize=f_size,
             )
         elif (att_3 != 0) and (att_2 == 0):
             plt.text(
-                txt_x, txt_b, _3_str,
-                horizontalalignment='right', verticalalignment='bottom', fontsize=f_size,
+                txt_x,
+                txt_b,
+                _3_str,
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize=f_size,
             )
         else:
             plt.text(
-                txt_x, txt_t, _2_str,
-                horizontalalignment='right', verticalalignment='bottom', fontsize=f_size,
+                txt_x,
+                txt_t,
+                _2_str,
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize=f_size,
             )
             plt.text(
-                txt_x, txt_b, _3_str,
-                horizontalalignment='right', verticalalignment='bottom', fontsize=f_size,
+                txt_x,
+                txt_b,
+                _3_str,
+                horizontalalignment='right',
+                verticalalignment='bottom',
+                fontsize=f_size,
             )
 
     if kind == 'normal':
         df_1 = df_t[df_t['SHOT_MADE'] == 1].copy()
         plt.scatter(
-            df_1['X'], df_1['Y'],
-            s=make_marker_size, marker=make_marker, c=make_marker_color, linewidth=make_width,
+            df_1['X'],
+            df_1['Y'],
+            s=make_marker_size,
+            marker=make_marker,
+            c=make_marker_color,
+            linewidth=make_width,
         )
         if show_misses:
             df_2 = df[df['SHOT_MADE'] == 0].copy()
             plt.scatter(
-                df_2['X'], df_2['Y'],
-                s=miss_marker_size, marker=miss_marker, c=miss_marker_color, linewidth=miss_width,
+                df_2['X'],
+                df_2['Y'],
+                s=miss_marker_size,
+                marker=miss_marker,
+                c=miss_marker_color,
+                linewidth=miss_width,
             )
     else:
         plt.text(
-            196, 414, 'The larger hexagons\nrepresent a higher\ndensity of shots',
-            horizontalalignment='center', bbox=dict(facecolor='#d9d9d9', boxstyle='round'),
+            196,
+            414,
+            'The larger hexagons\nrepresent a higher\ndensity of shots',
+            horizontalalignment='center',
+            bbox=dict(facecolor='#d9d9d9', boxstyle='round'),
         )
 
         if not show_misses:
             df_t = df_t[df_t['SHOT_MADE'] == 1].copy()
         hexbin = ax.hexbin(
-            df_t['X'], df_t['Y'], C=df_t[scale].values,
-            gridsize=hex_grid, edgecolors='black',
+            df_t['X'],
+            df_t['Y'],
+            C=df_t[scale].values,
+            gridsize=hex_grid,
+            edgecolors='black',
             cmap=matplotlib.colormaps['RdYlBu_r'],
             extent=[-275, 275, -50, 425],
             reduce_C_function=np.sum,
         )
         hexbin2 = ax.hexbin(
-            df_t['X'], df_t['Y'], C=df_t[scale].values,
-            gridsize=hex_grid, edgecolors='black',
+            df_t['X'],
+            df_t['Y'],
+            C=df_t[scale].values,
+            gridsize=hex_grid,
+            edgecolors='black',
             cmap=matplotlib.colormaps['RdYlBu_r'],
             extent=[-275, 275, -50, 425],
             reduce_C_function=np.mean,
@@ -265,7 +327,10 @@ def make_shot_chart(
         verts = orgpath.vertices
         values1 = hexbin.get_array()
         values1 = np.array(
-            [scale_factor if i > scale_factor else 0 if i < min_factor else i for i in values1]
+            [
+                scale_factor if i > scale_factor else 0 if i < min_factor else i
+                for i in values1
+            ]
         )
         # Guard against division by zero when scale_factor == 1
         if scale_factor != 1:
@@ -275,7 +340,7 @@ def make_shot_chart(
         values2 = hexbin2.get_array()
         patches = []
 
-        for offset, val in zip(offsets, values1):
+        for offset, val in zip(offsets, values1, strict=False):
             v1 = verts * val + offset
             path = Path(v1, orgpath.codes)
             patch = PathPatch(path)

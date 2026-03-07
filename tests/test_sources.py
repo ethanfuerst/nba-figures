@@ -94,7 +94,9 @@ def test_fetch_shot_chart_returns_tuple(mocker):
 def test_find_team_returns_dict(mocker):
     mocker.patch(
         'nbafigs.sources.team.teams.get_teams',
-        return_value=[{'id': 1, 'abbreviation': 'DAL', 'full_name': 'Dallas Mavericks'}],
+        return_value=[
+            {'id': 1, 'abbreviation': 'DAL', 'full_name': 'Dallas Mavericks'}
+        ],
     )
 
     result = find_team('DAL')
@@ -105,7 +107,9 @@ def test_find_team_returns_dict(mocker):
 def test_find_team_returns_none(mocker):
     mocker.patch(
         'nbafigs.sources.team.teams.get_teams',
-        return_value=[{'id': 1, 'abbreviation': 'DAL', 'full_name': 'Dallas Mavericks'}],
+        return_value=[
+            {'id': 1, 'abbreviation': 'DAL', 'full_name': 'Dallas Mavericks'}
+        ],
     )
 
     result = find_team('XXX')

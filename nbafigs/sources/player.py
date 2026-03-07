@@ -5,13 +5,13 @@ from nbafigs.sources import nba_api_call
 
 
 def find_player(player_name):
-    '''Look up a player by name. Return the first match dict or None.'''
+    """Look up a player by name. Return the first match dict or None."""
     results = players.find_players_by_full_name(player_name)
     return results[0] if results else None
 
 
 def fetch_player_game_log(player_id, season, season_type_all_star):
-    '''Fetch a single-season game log for a player.'''
+    """Fetch a single-season game log for a player."""
     log = nba_api_call(
         playergamelog.PlayerGameLog,
         player_id=player_id,
@@ -22,7 +22,7 @@ def fetch_player_game_log(player_id, season, season_type_all_star):
 
 
 def fetch_player_career_stats(player_id):
-    '''Fetch career totals for a player.'''
+    """Fetch career totals for a player."""
     log = nba_api_call(
         playercareerstats.PlayerCareerStats,
         player_id=player_id,
@@ -32,7 +32,7 @@ def fetch_player_career_stats(player_id):
 
 
 def fetch_shot_chart(player_id, team_id=0, **kwargs):
-    '''Fetch shot chart detail. Returns (shots_df, league_avg_df).'''
+    """Fetch shot chart detail. Returns (shots_df, league_avg_df)."""
     log = nba_api_call(
         shotchartdetail.ShotChartDetail,
         team_id=team_id,

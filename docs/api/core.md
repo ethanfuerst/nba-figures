@@ -1,0 +1,3 @@
+# nbafigs.core
+
+::: nbafigs.core

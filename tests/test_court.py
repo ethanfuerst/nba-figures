@@ -35,7 +35,10 @@ def test_make_shot_fig_returns_fig_and_ax():
 
 def test_make_shot_fig_with_context():
     fig, ax = make_shot_fig(
-        title='Test', title_size=22, context='Some context\nwith newline', context_size=14,
+        title='Test',
+        title_size=22,
+        context='Some context\nwith newline',
+        context_size=14,
     )
 
     assert isinstance(fig, plt.Figure)

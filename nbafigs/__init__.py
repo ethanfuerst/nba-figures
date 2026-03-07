@@ -10,7 +10,7 @@ __version__ = '0.1.0'
 
 
 def player_shot_chart(player_name, seasons=None, chart_params=None, **limiters):
-    '''Generate a player shot chart.
+    """Generate a player shot chart.
 
     Args:
         player_name: Player name string.
@@ -20,7 +20,7 @@ def player_shot_chart(player_name, seasons=None, chart_params=None, **limiters):
 
     Returns:
         Tuple of (DataFrame, Figure).
-    '''
+    """
     if chart_params is None:
         chart_params = {}
     player = NBAPlayer(player_name, print_name=False)
@@ -28,7 +28,7 @@ def player_shot_chart(player_name, seasons=None, chart_params=None, **limiters):
 
 
 def team_shot_chart(team_abbrev, game_id, playoffs=False, chart_params=None):
-    '''Generate a team shot chart.
+    """Generate a team shot chart.
 
     Args:
         team_abbrev: Team abbreviation (e.g. 'DAL').
@@ -38,8 +38,10 @@ def team_shot_chart(team_abbrev, game_id, playoffs=False, chart_params=None):
 
     Returns:
         Tuple of (DataFrame, Figure).
-    '''
+    """
     if chart_params is None:
         chart_params = {}
     team = NBATeam(team_abbrev)
-    return team.get_shot_chart(game_id=game_id, playoffs=playoffs, chart_params=chart_params)
+    return team.get_shot_chart(
+        game_id=game_id, playoffs=playoffs, chart_params=chart_params
+    )

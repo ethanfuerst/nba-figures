@@ -48,7 +48,9 @@ def test_cli_player_with_output(mocker, tmp_path, sample_grouped_df):
     output_path = str(tmp_path / 'test.png')
     runner = CliRunner()
 
-    result = runner.invoke(main, ['player', 'Test Player', '-s', '2023', '-o', output_path])
+    result = runner.invoke(
+        main, ['player', 'Test Player', '-s', '2023', '-o', output_path]
+    )
 
     assert result.exit_code == 0
     assert f'Saved to {output_path}' in result.output
@@ -64,7 +66,9 @@ def test_cli_team_with_output(mocker, tmp_path, sample_grouped_df):
     output_path = str(tmp_path / 'test.png')
     runner = CliRunner()
 
-    result = runner.invoke(main, ['team', 'DAL', '--game-id', '0042300401', '-o', output_path])
+    result = runner.invoke(
+        main, ['team', 'DAL', '--game-id', '0042300401', '-o', output_path]
+    )
 
     assert result.exit_code == 0
     assert f'Saved to {output_path}' in result.output

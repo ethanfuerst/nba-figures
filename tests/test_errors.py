@@ -24,6 +24,7 @@ def test_errors_have_message():
     assert str(err) == 'test message'
 
 
-def test_errors_are_catchable_as_exception():
-    with pytest.raises(Exception):
-        raise PlayerNotFoundError('caught as Exception')
+def test_errors_are_subclass_of_exception():
+    assert issubclass(PlayerNotFoundError, Exception)
+    assert issubclass(SeasonNotFoundError, Exception)
+    assert issubclass(TeamNotFoundError, Exception)

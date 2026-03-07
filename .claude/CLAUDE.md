@@ -12,14 +12,18 @@ nbafigs/           # Installable package
 ├── errors.py      # Custom exceptions
 └── __init__.py    # Public API: player_shot_chart(), team_shot_chart()
 tests/             # pytest tests (all nba_api calls mocked)
+docs/              # mkdocs-material documentation site
+scripts/           # CI helper scripts (check_pr_severity.py)
 ```
 
 ## Commands
 
 ```bash
-uv sync --extra dev    # Install dependencies
-uv run pytest          # Run tests
-uv run nbafigs --help  # CLI usage
+uv sync --extra dev                    # Install dependencies
+uv run pytest                          # Run tests
+uv run pre-commit run --all-files      # Lint and format
+uv run nbafigs --help                  # CLI usage
+uv run mkdocs serve                    # Local docs preview
 ```
 
 ## Conventions
@@ -29,3 +33,5 @@ uv run nbafigs --help  # CLI usage
 - Use `matplotlib.colormaps['name']` (not deprecated `cm.get_cmap()`)
 - Use `pd.concat()` (not deprecated `df.append()`)
 - Mock all nba_api calls in tests — never hit the real API
+- Commit messages must follow conventional commits format (enforced by commitizen pre-commit hook)
+- Releases are automated via commitizen on merge to main (see `.github/workflows/release.yml`)

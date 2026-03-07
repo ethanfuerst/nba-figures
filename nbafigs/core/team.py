@@ -10,14 +10,14 @@ from nbafigs.viz.chart import make_shot_chart, shots_grouper
 
 
 class NBATeam:
-    '''Represents an NBA team and provides methods for shot chart generation.
+    """Represents an NBA team and provides methods for shot chart generation.
 
     Args:
         team_abbrev: Team abbreviation (e.g. 'DAL', 'LAL').
 
     Raises:
         TeamNotFoundError: If no team matches the given abbreviation.
-    '''
+    """
 
     def __init__(self, team_abbrev):
         self.league = pd.DataFrame(teams.get_teams())
@@ -35,7 +35,7 @@ class NBATeam:
         self.year_founded = team_row['year_founded']
 
     def get_season(self, season, season_type):
-        '''Fetch a team game log for a season.
+        """Fetch a team game log for a season.
 
         Args:
             season: Season start year.
@@ -43,11 +43,11 @@ class NBATeam:
 
         Returns:
             DataFrame of game logs.
-        '''
+        """
         return fetch_team_game_log(self.id, season, season_type)
 
     def get_shot_chart(self, game_id, playoffs=False, chart_params=None):
-        '''Generate a team shot chart for a specific game.
+        """Generate a team shot chart for a specific game.
 
         Args:
             game_id: NBA game ID string.
@@ -56,7 +56,7 @@ class NBATeam:
 
         Returns:
             Tuple of (DataFrame, Figure).
-        '''
+        """
         if chart_params is None:
             chart_params = {}
 
@@ -85,10 +85,11 @@ class NBATeam:
         shots = shots.reset_index()
         avgs = avgs.reset_index()
 
-        shots[['SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG']] = (
-            shots[['SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG']]
-            .astype('int32')
-        )
+        shots[
+            ['SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG']
+        ] = shots[
+            ['SHOT_DISTANCE', 'LOC_X', 'LOC_Y', 'SHOT_ATTEMPTED_FLAG', 'SHOT_MADE_FLAG']
+        ].astype('int32')
 
         to_plot = shots_grouper(shots, avgs)
 

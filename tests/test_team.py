@@ -55,19 +55,23 @@ def test_team_init_not_found(mocker):
 def test_team_get_shot_chart(mocker, sample_shots_df, sample_avgs_df):
     _mock_teams_static(mocker)
 
-    box_score_df = pd.DataFrame({
-        'PLAYER_ID': [101, 102],
-        'TEAM_ABBREVIATION': ['DAL', 'DAL'],
-        'TEAM_ID': [1610612742, 1610612742],
-        'MIN': ['30:00', '25:00'],
-    })
+    box_score_df = pd.DataFrame(
+        {
+            'PLAYER_ID': [101, 102],
+            'TEAM_ABBREVIATION': ['DAL', 'DAL'],
+            'TEAM_ID': [1610612742, 1610612742],
+            'MIN': ['30:00', '25:00'],
+        }
+    )
     # Add opponent rows
-    opp_rows = pd.DataFrame({
-        'PLAYER_ID': [201, 202],
-        'TEAM_ABBREVIATION': ['LAL', 'LAL'],
-        'TEAM_ID': [1610612747, 1610612747],
-        'MIN': ['30:00', '25:00'],
-    })
+    opp_rows = pd.DataFrame(
+        {
+            'PLAYER_ID': [201, 202],
+            'TEAM_ABBREVIATION': ['LAL', 'LAL'],
+            'TEAM_ID': [1610612747, 1610612747],
+            'MIN': ['30:00', '25:00'],
+        }
+    )
     full_box = pd.concat([box_score_df, opp_rows], ignore_index=True)
 
     # Add GAME_DATE to shots so the title can be generated

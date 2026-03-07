@@ -160,8 +160,19 @@ def test_shots_grouper_returns_expected_columns(sample_shots_df, sample_avgs_df)
     result = shots_grouper(sample_shots_df, sample_avgs_df)
 
     expected_cols = [
-        'X', 'Y', 'SHOT_DISTANCE', 'PTS', 'SHOT_TYPE', 'SHOT_MADE', 'ZONE',
-        'PLAYER_PCT', 'LEAGUE_PCT', 'PCT_DIFF', 'P_PPS', 'L_PPS', 'D_PPS',
+        'X',
+        'Y',
+        'SHOT_DISTANCE',
+        'PTS',
+        'SHOT_TYPE',
+        'SHOT_MADE',
+        'ZONE',
+        'PLAYER_PCT',
+        'LEAGUE_PCT',
+        'PCT_DIFF',
+        'P_PPS',
+        'L_PPS',
+        'D_PPS',
     ]
     assert list(result.columns) == expected_cols
 
