@@ -24,7 +24,7 @@ nbafigs = "nbafigs.cli:main"
 Homepage = "https://github.com/ethanfuerst/nba-figures"
 Repository = "https://github.com/ethanfuerst/nba-figures"
 Issues = "https://github.com/ethanfuerst/nba-figures/issues"
-Changelog = "https://github.com/ethanfuerst/nba-figures/blob/main/CHANGELOG.md"
+Changelog = "https://github.com/ethanfuerst/nba-figures/releases"
 
 [build-system]
 requires = ["hatchling"]
