@@ -1,6 +1,6 @@
 [project]
 name = "nbafigs"
-version = "0.1.0"
+version = "0.0.1"
 description = "NBA shot chart generator with CLI and Python API"
 authors = [{name = "Ethan Fuerst", email = "ethanfuerst@gmail.com"}]
 readme = "README.md"
@@ -99,7 +99,7 @@ show_missing = true
 
 [tool.commitizen]
 name = "cz_conventional_commits"
-version = "0.1.0"
+version = "0.0.1"
 version_files = [
     "pyproject.toml:^version",
 ]
