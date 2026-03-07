@@ -149,7 +149,7 @@ def test_player_get_shot_chart_default_params(
     )
     player = NBAPlayer('Russell Westbrook', print_name=False)
 
-    to_plot, fig = player.get_shot_chart(seasons=[2010], chart_params=None)
+    _, fig = player.get_shot_chart(seasons=[2010], chart_params=None)
 
     assert isinstance(fig, plt.Figure)
     plt.close(fig)

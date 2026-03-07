@@ -91,7 +91,7 @@ def test_team_get_shot_chart_playoffs(mocker, sample_shots_df, sample_avgs_df):
     )
 
     team = NBATeam('DAL')
-    to_plot, fig = team.get_shot_chart(game_id='0042300401', playoffs=True)
+    _, fig = team.get_shot_chart(game_id='0042300401', playoffs=True)
 
     assert isinstance(fig, plt.Figure)
     plt.close(fig)
@@ -128,7 +128,7 @@ def test_team_get_shot_chart_default_params(mocker, sample_shots_df, sample_avgs
     )
 
     team = NBATeam('DAL')
-    to_plot, fig = team.get_shot_chart(game_id='0042300401', chart_params=None)
+    _, fig = team.get_shot_chart(game_id='0042300401', chart_params=None)
 
     assert isinstance(fig, plt.Figure)
     plt.close(fig)
