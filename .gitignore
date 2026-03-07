@@ -3,5 +3,9 @@
 .vscode
 *.pyc
 __pycache__
-venv
+.venv
 .env
+dist/
+*.egg-info
+.claude/*
+!.claude/CLAUDE.md

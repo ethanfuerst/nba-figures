@@ -1,0 +1,25 @@
+[project]
+name = "nbafigs"
+version = "0.1.0"
+description = "NBA shot chart generator with CLI and Python API"
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.10"
+dependencies = [
+    "nba-api>=1.11",
+    "matplotlib>=3.10",
+    "numpy>=2.2",
+    "pandas>=2.3",
+    "click>=8.3",
+    "tenacity>=9.0",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "pytest-mock>=3.12", "pre-commit>=4.0", "ruff>=0.9"]
+
+[project.scripts]
+nbafigs = "nbafigs.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
