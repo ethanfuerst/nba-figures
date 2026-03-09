@@ -29,7 +29,8 @@ def test_player_shot_chart_default_params(mocker, sample_grouped_df):
     player_shot_chart('Test Player')
 
     mock_player.get_shot_chart.assert_called_once_with(
-        seasons=None, chart_params={},
+        seasons=None,
+        chart_params={},
     )
     plt.close(fig)
 
@@ -45,7 +46,8 @@ def test_player_shot_chart_none_chart_params(mocker, sample_grouped_df):
     player_shot_chart('Test Player', chart_params=None)
 
     mock_player.get_shot_chart.assert_called_once_with(
-        seasons=None, chart_params={},
+        seasons=None,
+        chart_params={},
     )
     plt.close(fig)
 
@@ -76,6 +78,8 @@ def test_team_shot_chart_default_params(mocker, sample_grouped_df):
     team_shot_chart('DAL', '0042300401')
 
     mock_team.get_shot_chart.assert_called_once_with(
-        game_id='0042300401', playoffs=False, chart_params={},
+        game_id='0042300401',
+        playoffs=False,
+        chart_params={},
     )
     plt.close(fig)
