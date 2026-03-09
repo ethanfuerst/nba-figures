@@ -1,3 +1,10 @@
+from __future__ import annotations
+
+from typing import Any
+
+import matplotlib.figure
+import pandas as pd
+
 from nbafigs.core.player import NBAPlayer as NBAPlayer
 from nbafigs.core.team import NBATeam as NBATeam
 from nbafigs.errors import PlayerNotFoundError as PlayerNotFoundError
@@ -6,10 +13,15 @@ from nbafigs.errors import TeamNotFoundError as TeamNotFoundError
 from nbafigs.viz.chart import make_shot_chart as make_shot_chart
 from nbafigs.viz.court import draw_court as draw_court
 
-__version__ = '0.1.0'
+__version__ = '0.0.1'
 
 
-def player_shot_chart(player_name, seasons=None, chart_params=None, **limiters):
+def player_shot_chart(
+    player_name: str,
+    seasons: list[int] | None = None,
+    chart_params: dict[str, Any] | None = None,
+    **limiters: Any,
+) -> tuple[pd.DataFrame, matplotlib.figure.Figure]:
     """Generate a player shot chart.
 
     Args:
@@ -27,7 +39,12 @@ def player_shot_chart(player_name, seasons=None, chart_params=None, **limiters):
     return player.get_shot_chart(seasons=seasons, chart_params=chart_params, **limiters)
 
 
-def team_shot_chart(team_abbrev, game_id, playoffs=False, chart_params=None):
+def team_shot_chart(
+    team_abbrev: str,
+    game_id: str,
+    playoffs: bool = False,
+    chart_params: dict[str, Any] | None = None,
+) -> tuple[pd.DataFrame, matplotlib.figure.Figure]:
     """Generate a team shot chart.
 
     Args:
