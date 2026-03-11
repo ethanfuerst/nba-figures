@@ -261,9 +261,8 @@ def test_player_get_season_exception(mocker, mock_player_search, mock_career_df)
     )
     player = NBAPlayer('Russell Westbrook', print_name=False)
 
-    df = player.get_season(2023)
-
-    assert df.empty
+    with pytest.raises(Exception, match='API error'):
+        player.get_season(2023)
 
 
 def test_player_get_full_career_regular(mocker, mock_player_search, mock_career_df):
@@ -533,17 +532,24 @@ def test_player_format_shots_with_opponent(
     assert 'X' in to_plot.columns
 
 
-def test_player_format_shots_too_many_seasons(
-    mocker, mock_player_search, mock_career_df
+def test_player_format_shots_many_seasons(
+    mocker, mock_player_search, mock_career_df, sample_shots_df, sample_avgs_df
 ):
     mocker.patch('nbafigs.core.player.find_player', return_value=mock_player_search)
     mocker.patch(
         'nbafigs.core.player.fetch_player_career_stats', return_value=mock_career_df
     )
+    mocker.patch(
+        'nbafigs.core.player.fetch_shot_chart',
+        return_value=(sample_shots_df, sample_avgs_df),
+    )
     player = NBAPlayer('Russell Westbrook', print_name=False)
 
-    with pytest.raises(TypeError):
-        player.format_shots([2008, 2009, 2010], {})
+    chart_params = {}
+    to_plot = player.format_shots([2008, 2009, 2010], chart_params)
+
+    assert not to_plot.empty
+    assert 'to' in chart_params['title']
 
 
 def test_player_format_shots_no_data(mocker, mock_player_search, mock_career_df):

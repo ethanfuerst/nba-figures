@@ -185,6 +185,8 @@ def make_shot_chart(
     if show_pct:
         att_2 = len(df[(df['PTS'] == 2)])
         att_3 = len(df[(df['PTS'] == 3)])
+        _2_str = ''
+        _3_str = ''
 
         if att_2 != 0:
             made_2 = len(df[(df['PTS'] == 2) & (df['SHOT_MADE'] == 1)])

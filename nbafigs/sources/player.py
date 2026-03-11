@@ -5,9 +5,12 @@ from nbafigs.sources import nba_api_call
 
 
 def find_player(player_name):
-    """Look up a player by name. Return the first match dict or None."""
+    """Look up a player by name. Prefers an exact match, falls back to first result."""
     results = players.find_players_by_full_name(player_name)
-    return results[0] if results else None
+    if not results:
+        return None
+    exact = [r for r in results if r['full_name'].lower() == player_name.lower()]
+    return exact[0] if exact else results[0]
 
 
 def fetch_player_game_log(player_id, season, season_type_all_star):

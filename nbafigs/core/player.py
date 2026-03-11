@@ -98,10 +98,7 @@ class NBAPlayer:
         }
         s_type = s_types[season_type]
 
-        try:
-            df = fetch_player_game_log(self.player_id, season, s_type)
-        except Exception:
-            return pd.DataFrame()
+        df = fetch_player_game_log(self.player_id, season, s_type)
 
         if len(df) == 0:
             raise SeasonNotFoundError(
@@ -110,7 +107,8 @@ class NBAPlayer:
 
         df['Player'] = self.name
         df['Season'] = f'{season}-{str(season + 1)[2:]}'
-        df['TS_PCT'] = round(df['PTS'] / (2 * (df['FGA'] + (0.44 * df['FTA']))), 3)
+        ts_denom = 2 * (df['FGA'] + (0.44 * df['FTA']))
+        df['TS_PCT'] = round(df['PTS'] / ts_denom.replace(0, np.nan), 3)
 
         df = df[
             [
@@ -157,7 +155,8 @@ class NBAPlayer:
         df['Player'] = self.name
         df['Season'] = df['SEASON_ID'].copy()
         df['Team'] = df['TEAM_ABBREVIATION'].copy()
-        df['TS_PCT'] = round(df['PTS'] / (2 * (df['FGA'] + (0.44 * df['FTA']))), 3)
+        ts_denom = 2 * (df['FGA'] + (0.44 * df['FTA']))
+        df['TS_PCT'] = round(df['PTS'] / ts_denom.replace(0, np.nan), 3)
 
         df = df[
             [
@@ -402,7 +401,7 @@ class NBAPlayer:
                 seasons = [l_seas]
             if len(seasons) == 1:
                 title += f' in the {seasons[0]}-{str(seasons[0] + 1)[2:]} season'
-            elif seasons[1] - seasons[0] == 1:
+            elif len(seasons) == 2 and seasons[1] - seasons[0] == 1:
                 title += (
                     f' in the {seasons[0]}-{str(seasons[0] + 1)[2:]} and '
                     f'{seasons[1]}-{str(seasons[1] + 1)[2:]} seasons'
@@ -410,7 +409,7 @@ class NBAPlayer:
             else:
                 title += (
                     f' from the {seasons[0]}-{str(seasons[0] + 1)[2:]} to '
-                    f'{seasons[1]}-{str(seasons[1] + 1)[2:]} seasons'
+                    f'{seasons[-1]}-{str(seasons[-1] + 1)[2:]} seasons'
                 )
         if 'title' not in chart_params:
             chart_params['title'] = title
@@ -423,14 +422,8 @@ class NBAPlayer:
             shots = pd.concat([shots, df_1])
             avgs = pd.concat([avgs, df_2])
         else:
-            if len(seasons) > 2:
-                raise TypeError(
-                    'The seasons variable must be a list of length 2 or 1 with years '
-                    'in integer form. Example: [2005, 2018]'
-                )
-
             first = seasons[0]
-            last = seasons[0] if len(seasons) == 1 else seasons[1]
+            last = seasons[-1]
             season_df = (
                 self._career[
                     (self._career['season'].astype(int) >= first)
@@ -464,8 +457,8 @@ class NBAPlayer:
                 )
             else:
                 raise SeasonNotFoundError(
-                    f'{self.name} has no data recorded for the {seasons[0]}-{seasons[1]} '
-                    'seasons with those limiters'
+                    f'{self.name} has no data recorded for the '
+                    f'{seasons[0]}-{seasons[-1]} seasons with those limiters'
                 )
 
         return shots_grouper(shots, avgs)
