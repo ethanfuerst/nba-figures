@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  commit-check:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v5
+
+      - run: uv sync --extra dev
+
+      - name: Check commit messages
+        run: |
+          uv run cz check --rev-range origin/${{ github.base_ref }}..HEAD
+
+      - name: Check PR title severity matches commits
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: |
+          python scripts/check_pr_severity.py \
+            --pr-title "$PR_TITLE" \
+            --base-ref "origin/${{ github.base_ref }}"
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv sync --extra dev
+      - run: uv run pre-commit run --all-files
+
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: uv sync --extra dev
+      - run: uv run pytest --cov=nbafigs --cov-report=xml
+
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+      - run: uv build
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+
+  install-test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: astral-sh/setup-uv@v5
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist/
+      - run: uv venv
+      - run: uv pip install "$(ls dist/*.whl)"
+      - run: uv run python -c "from nbafigs import player_shot_chart, team_shot_chart"
+      - run: uv run nbafigs --help

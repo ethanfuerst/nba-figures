@@ -1,0 +1,3 @@
+# nbafigs.viz
+
+::: nbafigs.viz
